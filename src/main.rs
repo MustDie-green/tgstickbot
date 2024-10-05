@@ -116,7 +116,7 @@ async fn receive_action(
                             .iter()
                             .map(|pack_name| vec![KeyboardButton::new(pack_name.clone())])
                             .collect();
-                        let keyboard = KeyboardMarkup::new(buttons);
+                        let keyboard = KeyboardMarkup::new(buttons).resize_keyboard();
                         
                         bot.send_message(msg.chat.id, "Окей, выбери стикерпак:")
                             .reply_markup(keyboard)
@@ -175,7 +175,7 @@ async fn receive_pack_name_and_create_pack(
                 keywords: vec!["quote".to_string()],
             }];
 
-            bot.send_message(chat_id, format!("Создаем новый стикерпак: '{id_pack_name}, заголовок: {pack_name}")).await?;
+            bot.send_message(chat_id, format!("Создаем новый стикерпак: {id_pack_name}, название: {pack_name}")).await?;
     
             // Создание нового стикерпакета с использованием Telegram API
             let result = bot
@@ -234,10 +234,10 @@ async fn add_sticker_to_pack(
 
             match result {
                 Ok(_) => {
-                    bot.send_message(msg.chat.id, format!("Стикер добавлен в стикерпак '{pack_name}'.")).await?;
+                    bot.send_message(msg.chat.id, format!("Стикер добавлен в стикерпак t.me/addstickers/{pack_name}.")).await?;
                 }
                 Err(err) => {
-                    bot.send_message(msg.chat.id, format!("Не удалось добавить стикер {pack_name} в стикерпак: {err}")).await?;
+                    bot.send_message(msg.chat.id, format!("Не удалось добавить стикер в стикерпак: {err}")).await?;
                 }
             }
             dialogue.exit().await?;
@@ -249,31 +249,6 @@ async fn add_sticker_to_pack(
             dialogue.exit().await?
         }
     }
-
-       /*  if !pack_name.is_empty() {
-        // Логика добавления стикера в выбранный стикерпак
-        let result = bot
-            .add_sticker_to_set(
-                user_id_2,
-                &pack_name, // Уникальное имя стикерпакета
-                sticker,  // ID стикера
-            )
-            .await;
-
-        match result {
-            Ok(_) => {
-                bot.send_message(chat_id, format!("Стикер добавлен в стикерпак '{pack_name}'.")).await?;
-            }
-            Err(err) => {
-                bot.send_message(chat_id, format!("Не удалось добавить стикер в стикерпак: {err}")).await?;
-            }
-        }
-            dialogue.exit().await?;
-    }
-
-    Ok(())
- */
-
     Ok(())
 
 }
@@ -313,7 +288,7 @@ fn save_sticker_pack(conn: &Connection, user_id: i64, pack_name: &str, id_pack_n
 
 // Функция, получающая список стикерпаков пользователя
 fn get_user_sticker_packs(conn: &Connection, user_id: i64) -> SqlResult<Vec<String>> {
-    let mut stmt = conn.prepare("SELECT pack_name FROM sticker_packs WHERE user_id = ?1")?;
+    let mut stmt = conn.prepare("SELECT id_pack_name FROM sticker_packs WHERE user_id = ?1")?;
     let packs_iter = stmt.query_map([user_id], |row| row.get(0))?;
 
     let mut packs = Vec::new();
