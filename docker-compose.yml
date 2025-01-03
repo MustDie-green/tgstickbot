@@ -1,0 +1,8 @@
+services:
+  app:
+    image: rust:1.83.0-bookworm
+    container_name: rust-app
+    volumes:
+      - .:/usr/src/app  
+    working_dir: /usr/src/app
+    command: cargo run --release
