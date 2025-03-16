@@ -1,4 +1,9 @@
 /target
+**/*.rs.bk
+Cargo.lock
 .env
+*.db
+*.db-*
+temp/
 .DS_Store
 stickers.db
