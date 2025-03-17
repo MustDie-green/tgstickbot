@@ -289,7 +289,12 @@ async fn receive_pack_name_and_create_pack(
     let chat_id = ChatId(msg.chat.id.0);
 
     if let Some(pack_name) = msg.text() {
-        let id_pack_name = process_string(&format!("{pack_name}_by_flex_stickerpack_bot"));
+        let username = if let Some(user) = &msg.from() {
+            user.username.clone().unwrap_or_else(|| format!("user{}", user_id))
+        } else {
+            format!("user{}", user_id)
+        };
+        let id_pack_name = process_string(&format!("{pack_name}_{username}_by_flex_stickerpack_bot"));
 
         if check_sticker_pack_exists(&conn, user_id, &id_pack_name).expect("Failed to check sticker pack") {
             bot.send_message(chat_id, "У вас уже есть стикерпак с таким именем. Пожалуйста, выберите другое имя.").await?;
