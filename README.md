@@ -18,7 +18,7 @@ git clone https://github.com/MustDie-green/tgstickbot.git
 cd tgstickbot
 ```
 
-2. Отредактиру те файл `.env.template`, добавьте в него токен вашего бота и переименуйте в `.env`:
+2. Отредактируйте файл `.env.template`, добавьте в него токен вашего бота и переименуйте в `.env`:
 ```
 TELOXIDE_TOKEN=your_bot_token_here
 ```
