@@ -243,7 +243,14 @@ async fn process_image(bot: &Bot, file_id: &str, user_id: i64) -> Result<String,
 }
 
 fn process_image_for_sticker(img: DynamicImage) -> Result<DynamicImage, Box<dyn std::error::Error + Send + Sync>> {
-    let (width, height) = (img.width(), img.height());
+    let border_size = 50;
+    let bordered_width = img.width() + 2 * border_size;
+    let bordered_height = img.height() + 2 * border_size;
+    let mut bordered_image = DynamicImage::new_rgba8(bordered_width, bordered_height);
+
+    image::imageops::overlay(&mut bordered_image, &img, border_size as u32, border_size as u32);
+
+    let (width, height) = (bordered_image.width(), bordered_image.height());
     let aspect_ratio = width as f32 / height as f32;
 
     let (new_width, new_height) = if width > height {
@@ -252,19 +259,7 @@ fn process_image_for_sticker(img: DynamicImage) -> Result<DynamicImage, Box<dyn 
         ((512.0 * aspect_ratio).round() as u32, 512)
     };
 
-    let (final_width, final_height) = if new_width < 512 && new_height < 512 {
-        (512, 512)
-    } else {
-        (new_width, new_height)
-    };
-
-    let mut resized = img.resize_exact(final_width, final_height, image::imageops::FilterType::Lanczos3);
-
-    if final_width > 512 || final_height > 512 {
-        let x = (final_width as i64 - 512) / 2;
-        let y = (final_height as i64 - 512) / 2;
-        resized = resized.crop(x.max(0) as u32, y.max(0) as u32, 512, 512);
-    }
+    let resized = bordered_image.resize_exact(new_width, new_height, image::imageops::FilterType::Lanczos3);
 
     Ok(resized)
 }
